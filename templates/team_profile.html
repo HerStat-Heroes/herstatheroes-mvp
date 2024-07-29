@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Profile - HerstatHeroes</title>
+    <link rel="stylesheet" href="/static/css/profile.css">
+    <style>
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .stats-table th, .stats-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .stats-table th {
+            background-color: #f2f2f2;
+        }
+        .event {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+    <script>
+        async function fetchTeamMembers(teamId) {
+            try {
+                const response = await fetch(`/data_by_team/${teamId}`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching team members:', error);
+                return [];
+            }
+        }
+
+        function getTeamIdFromUrl() {
+            const pathSegments = window.location.pathname.split('/');
+            return pathSegments[pathSegments.length - 1];
+        }
+
+        async function populateTeamMembers() {
+            const teamId = getTeamIdFromUrl();
+            if (!teamId) {
+                console.error('Team ID is not set.');
+                return;
+            }
+
+            const membersList = document.getElementById('teamMembersList');
+            const teamMembers = await fetchTeamMembers(teamId);
+
+            membersList.innerHTML = '';
+            if (teamMembers.length === 0) {
+                membersList.innerHTML = '<p>No team members found</p>';
+                return;
+            }
+            teamMembers.forEach(memberId => {
+                const link = document.createElement('a');
+                link.href = `/hitter_profile/${memberId}`;
+                link.textContent = `Player ID: ${memberId}`;
+                link.target = '_blank';
+                membersList.appendChild(link);
+                membersList.appendChild(document.createElement('br'));
+            });
+        }
+
+        window.onload = () => {
+            populateTeamMembers();
+        };
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__container">
+            <div class="header__logo">
+                <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
+                <h1 class="header__title" href="/">HerstatHeroes</h1>
+            </div>
+            <div class="header__menu">
+                <nav id="navbar" class="header__nav collapse">
+                    <ul class="header__elenco">
+                        <li class="header__el"><a href="#" class="header__link">Home</a></li>
+                        <li class="header__el"><a href="#" class="header__link">Contact us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main class="main-content">
+        <div class="container">
+            <h1 class="profile-title">Team Profile</h1>
+            {% if team_data %}
+                <section class="basic-info">
+                    <h2>Basic Information</h2>
+                    <p><strong>Team ID:</strong> {{ team_data[0].team_id }}</p>
+                </section>
+
+                <section class="performance-stats">
+                    <h2>Performance Statistics</h2>
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Squared Up Rate</th>
+                                <th>Count</th>
+                                <th>Percentage</th>
+                                <th>Avg Trajectory Length</th>
+                                <th>Avg Swing Speed</th>
+                                <th>Avg Pitch Speed</th>
+                                <th>Avg Pitch Spin</th>
+                                <th>Avg Bat Contact Point</th>
+                                <th>Avg Level of Stress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set categories = ['below 0.5', '0.5 to 0.6', '0.6 to 0.7', '0.7 to 0.8', '0.8 to 1'] %}
+                            {% set total_count = team_data|length %}
+                            {% for category in categories %}
+                                {% set category_data = team_data if category == 'All' else team_data|selectattr('squared_up_rate_category', 'equalto', category)|list %}
+                                {% set category_count = category_data|length %}
+                                <tr>
+                                    <td>{{ category }}</td>
+                                    <td>{{ category_count }}</td>
+                                    <td>{{ (category_count / total_count * 100)|round(2) }}%</td>
+                                    <td>{{ (category_data|sum(attribute='total_length') / category_count if category_count else 0)|round(2) }}</td>
+                                    <td>{{ (category_data|sum(attribute='swing_speed') / category_count if category_count else 0)|round(2) }}</td>
+                                    <td>{{ (category_data|sum(attribute='pitch_speed') / category_count if category_count else 0)|round(2) }}</td>
+                                    <td>{{ (category_data|sum(attribute='pitch_spin') / category_count if category_count else 0)|round(2) }}</td>
+                                    <td>{{ (category_data|sum(attribute='contact_point') / category_count if category_count else 0)|round(2) }}</td>
+                                    <td>{{ (category_data|sum(attribute='stress_level') / category_count if category_count else 0)|round(2) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <p class="reference-info">
+                        For your reference, in the "Good" category (0.8 to 1):<br>
+                        Average trajectory length: {{ avg_trajectory_good|round(2) }}<br>
+                        Average swing speed: {{ avg_swing_speed_good|round(2) }}<br>
+                        Average bat contact point: {{ avg_contact_point_good|round(2) }}
+                    </p>
+                    <p class="category-explanation">
+                        The categories are defined as follows:<br>
+                        0: Worst (below 0.5)<br>
+                        1: Bad (0.5 to 0.6)<br>
+                        2: Pass (0.6 to 0.7)<br>
+                        3: OK (0.7 to 0.8)<br>
+                        4: Good (0.8 to 1)<br>
+                        <br>
+                        This categorization comes from the MLB's official definition: "Any swing that's at least 80% squared up is considered to be, well, squared up." Therefore, the 0.8 threshold is an officially recognized benchmark for excellent contact quality.
+                    </p>
+                </section>
+<!-- 
+                <section class="hit-events">
+                    <h2>Related Hit Events</h2>
+                    <ul>
+                        {% for event in team_data %}
+                            <li>Event {{ loop.index }}: 
+                                <a href="{{ url_for('visualization', data_id=event.jsonl_filename[:-6]) }}">
+                                    {{ event.hit_event_id }} ({{ event.jsonl_filename }})
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </section> -->
+
+                <section class="detailed-events">
+                    <h2>Detailed Events</h2>
+                    {% for event in team_data %}
+                        <div class="event">
+                            <h3>Event {{ loop.index }}</h3>
+                            <p><strong>Hit Event ID:</strong> {{ event.hit_event_id }}</p>
+                            <p><strong>Category:</strong> {{ event.squared_up_rate_category }}</p>
+                            <p><strong>Trajectory Length:</strong> {{ event.total_length|round(2) }}</p>
+                            <p><strong>Swing Speed:</strong> {{ event.swing_speed|round(2) }}</p>
+                            <p><strong>Pitch Speed:</strong> {{ event.pitch_speed|round(2) }}</p>
+                            <p><strong>Pitch Spin:</strong> {{ event.pitch_spin|round(2) }}</p>
+                            <p><strong>Contact Point:</strong> {{ event.contact_point|round(2) }}</p>
+                            <p><strong>Stress Level:</strong> {{ event.stress_level|round(2) }}</p>
+                        </div>
+                    {% endfor %}
+
+                    <h3>Team Members</h3>
+                    <div id="teamMembersList">
+                        <!-- Team members will be populated here by JavaScript -->
+                    </div>
+                    
+                </section>
+            {% else %}
+                <p>No data found for this team.</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HerstatHeroes - Homepage</title>
+    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/m5ZdwdL/baseball.png"/>
+    <meta name="theme-color" content="#1885ed">
+    <link rel="stylesheet" href="/static/css/index.css">
+    <link rel="stylesheet" href="http://weloveiconfonts.com/api/?family=entypo">
+    <script>
+        async function fetchData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data;
+        }
+
+        async function populatePitchEventSelector() {
+            const eventData = await fetchData('/pitch_events');
+            const selector = document.getElementById('pitchEventSelector');
+            eventData.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.fileName;
+                option.text = event.eventId;
+                selector.appendChild(option);
+            });
+        }
+
+        async function populateHitEventSelector() {
+            const eventData = await fetchData('/hit_events');
+            const selector = document.getElementById('hitEventSelector');
+            eventData.forEach(event => {
+                const option = document.createElement('option');
+                option.value = event.fileName;
+                option.text = event.eventId;
+                selector.appendChild(option);
+            });
+        }
+
+        async function populateTeamSelector() {
+            const teamIds = await fetchData('/teams');
+            const selector = document.getElementById('teamSelector');
+            teamIds.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.text = id;
+                selector.appendChild(option);
+            });
+        }
+
+        async function populateHitterSelector() {
+            const hitterIds = await fetchData('/hitters');
+            const selector = document.getElementById('hitterSelector');
+            hitterIds.forEach(id => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.text = id;
+                selector.appendChild(option);
+            });
+        }
+
+        window.onload = () => {
+            populatePitchEventSelector();
+            populateHitEventSelector();
+            populateTeamSelector();
+            populateHitterSelector();
+        };
+
+        function navigateToPitchEventVisualization() {
+            const selector = document.getElementById('pitchEventSelector');
+            const selectedId = selector.value;
+            if (selectedId) {
+                window.location.href = `/visualization/${selectedId}`;
+            } else {
+                alert("Please select a pitch event ID first.");
+            }
+        }
+
+        function navigateToHitEventVisualization() {
+            const selector = document.getElementById('hitEventSelector');
+            const selectedId = selector.value;
+            if (selectedId) {
+                window.location.href = `/visualization/${selectedId}`;
+            } else {
+                alert("Please select a hit event ID first.");
+            }
+        }
+
+        function navigateToTeamProfile() {
+            const selector = document.getElementById('teamSelector');
+            const selectedId = selector.value;
+            if (selectedId) {
+                window.location.href = `/team_profile/${selectedId}`;
+            } else {
+                alert("Please select a team ID first.");
+            }
+        }
+
+        function navigateToHitterProfile() {
+            const selector = document.getElementById('hitterSelector');
+            const selectedId = selector.value;
+            if (selectedId) {
+                window.location.href = `/hitter_profile/${selectedId}`;
+            } else {
+                alert("Please select a hitter ID first.");
+            }
+        }
+    </script>
+</head>
+
+<body>
+<header class="header">
+    <div class="container header__container">
+        <div class="header__logo">
+            <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
+            <h1 class="header__title" href="/">HerstatHeroes</h1>
+        </div>
+        <div class="header__menu">
+            <nav id="navbar" class="header__nav collapse">
+                <ul class="header__elenco">
+                    <li class="header__el"><a href="/" class="header__link">Home</a></li>
+                    <li class="header__el"><a href="mailto:herstatheroes@gmail.com" class="header__link">Contact us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<div class="sect sect--padding-top">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="site">
+                    <h1 class="site__title">Swing Up</h1>
+                    <h2 class="site__subtitle">Your personal Baseball Swing Coach</h2>
+
+                    <h2 class="header__link">View Team Profile</h2>
+                    <div class="select-analyze-container">
+                        <div class="input-group">
+                            <label for="teamSelector" class="event-label">Team ID:</label>
+                            <div class="select-wrapper">
+                                <select id="teamSelector" class="select"></select>
+                                <span class="select-icon entypo-arrow-combo"></span>
+                            </div>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--white" onclick="navigateToTeamProfile()">Search</button>
+                        </div>
+                    </div>
+
+
+                    <h2 class="header__link">View Hitter Profile</h2>
+                    <div class="select-analyze-container">
+                        <label for="hitterSelector" class="event-label">Hitter ID:</label>
+                        <div class="select-wrapper">
+                            <select id="hitterSelector" class="select"></select>
+                            <span class="select-icon entypo-arrow-combo"></span>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--white" onclick="navigateToHitterProfile()">Search</button>
+                        </div>                    </div>
+
+                    <h2 class="header__link">View Analysis by Pitch Event</h2>
+                    <div class="select-analyze-container">
+                        <label for="pitchEventSelector" class="event-label">Pitch Event ID:</label>
+                        <div class="select-wrapper">
+                            <select id="pitchEventSelector" class="select"></select>
+                            <span class="select-icon entypo-arrow-combo"></span>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--white" onclick="navigateToTeamProfile()">Search</button>
+                        </div>                    </div>
+
+                    <h2 class="header__link">View Analysis by Hit Event</h2>
+                    <div class="select-analyze-container">
+                        <label for="hitEventSelector" class="event-label">Hit Event ID:</label>
+                        <div class="select-wrapper">
+                            <select id="hitEventSelector" class="select"></select>
+                            <span class="select-icon entypo-arrow-combo"></span>
+                        </div>
+                        <div class="button-container">
+                            <button class="btn btn--white" onclick="navigateToHitEventVisualization()">Search</button>
+                        </div>                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="sect sect--padding-bottom">
+    <div class="container">
+        <div class="row row--center">
+            <!-- <h1 class="row__title">Title</h1>
+            <h2 class="row__sub">Sub</h2> -->
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

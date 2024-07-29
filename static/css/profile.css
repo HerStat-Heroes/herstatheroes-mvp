@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i');
+@import url('http://weloveiconfonts.com/api/?family=entypo');
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lato', sans-serif;
+    color: #1f4568;
+}
+
+body {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.header {
+    padding: 30px 25px;
+}
+
+.header__container {
+    width: 100%;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+}
+
+.header__img {
+    display: inline-block;
+    vertical-align: middle;
+    width: 20px;
+    height: auto;
+    padding: 5px;
+}
+
+.header__title {
+    font-size: 18px;
+    margin: 0;
+    margin-left: 10px;
+    line-height: 18px;
+    vertical-align: middle;
+}
+
+.header__light {
+    color: #8198ae;
+}
+
+.header__menu {
+    display: flex;
+    align-items: center;
+}
+
+.header__elenco {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+}
+
+.header__el {
+    padding: 0 25px;
+}
+
+.header__link {
+    color: #1f4568;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.header__link:hover {
+    text-decoration: none;
+    color: #3a9fff;
+}
+
+.btn {
+    background-color: #3a9fff;
+    border-radius: 20px;
+    padding: 10px 25px;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0px 18px 13px -6px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s;
+}
+
+.btn:hover {
+    box-shadow: 0px 25px 18px -6px rgba(0, 0, 0, 0.2);
+    background-color: #63b2fc;
+    color: #fff;
+}
+
+.btn--white {
+    background-color: #fff;
+    border: 1px solid #ededed;
+    color: #8198ae;
+    margin-left: 50px;
+}
+
+.btn--white:hover {
+    background-color: #fff;
+    color: #8198ae;
+}
+
+.sect {
+    padding: 90px 0;
+    position: relative;
+}
+
+.sect--padding-top {
+    padding-top: 50px;
+}
+
+
+.site {
+    text-align: left;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+
+.site__title {
+    font-size: 30px;
+    margin: 0;
+}
+
+.site__subtitle {
+    font-size: 22px;
+    color: #8198ae;
+    margin: 15px 0 40px 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* New Styles for Select Box */
+.select-wrapper {
+    background-color: #eee;
+    border: 1px solid #eee;
+    color: #ffffff;
+    cursor: pointer;
+    float: left;
+    overflow: hidden;
+    position: relative;
+    width: 600px;
+}
+.select-wrapper {
+    background-color: #eee;
+    border: 1px solid #eee;
+    color: #eee;
+    cursor: pointer;
+    float: left;
+    overflow: hidden;
+    position: relative;
+    width: 150px;
+    border-radius: 20px;
+}
+
+.select {
+    -webkit-appearance: none;
+    background-color: #eee;
+    border-width: 0;
+    box-sizing: border-box;
+    cursor: pointer;
+    float: left;
+    font-size: 1em;
+    line-height: 1em;
+    padding: 1em 1em;
+    width: 300px;
+    border-radius: 20px;
+}
+
+.select:focus {
+    outline: none;
+}
+
+.select-icon {
+    position: absolute;
+    top: .8em;
+    right: 1em;
+}
+
+[class*="entypo-"]:before {
+    font: 1.4em 'entypo', sans-serif;
+}
+
+.select-analyze-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.event-label {
+    margin-right: 10px;
+}
+
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.button-container {
+    margin-left: auto;
+}
+
+.event-label {
+    margin-right: 10px;
+    min-width: 80px; /* Adjust as needed */
+}
+
+.select-wrapper {
+    margin-right: 20px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}

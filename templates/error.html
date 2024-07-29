@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - HerstatHeroes</title>
+    <link rel="stylesheet" href="/static/css/index.css">
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            margin: 50px auto;
+            max-width: 600px;
+        }
+        .error-title {
+            color: #1f4568;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: #8198ae;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .back-home {
+            display: inline-block;
+            background-color: #3a9fff;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .back-home:hover {
+            background-color: #63b2fc;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header__container">
+            <div class="header__logo">
+                <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
+                <h1 class="header__title" href="/">HerstatHeroes</h1>
+            </div>
+            <div class="header__menu">
+                <nav id="navbar" class="header__nav collapse">
+                    <ul class="header__elenco">
+                        <li class="header__el"><a href="/" class="header__link">Home</a></li>
+                        <li class="header__el"><a href="mailto:herstatheroes@gmail.com" class="header__link">Contact us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="error-container">
+                <h1 class="error-title">Oops! Something went wrong</h1>
+                <p class="error-message">{{ error }}</p>
+                <a href="/" class="back-home">Back to Home</a>
+            </div>
+        </div>
+    </main>
+
+</body>
+</html>

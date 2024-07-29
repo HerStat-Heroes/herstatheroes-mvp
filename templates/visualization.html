@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Positions Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="/static/css/visualization.css">
+    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/m5ZdwdL/baseball.png"/>
+    <meta name="data-id" content="12345645_17713"> <!-- Example data-id for testing -->
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div id="status">&nbsp;</div>
+    </div>
+    <header class="header">
+        <div class="container header__container">
+            <div class="header__logo">
+                <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
+                <h1 class="header__title" href="/">HerstatHeroes</h1>
+            </div>
+            <div class="header__menu">
+                <nav id="navbar" class="header__nav collapse">
+                    <ul class="header__elenco">
+                        <li class="header__el"><a href="#" class="header__link">Home</a></li>
+                        <li class="header__el"><a href="#" class="header__link">Contact us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="site">
+        <div class="sect sect--padding-top">
+            <div class="container">
+                <h2 class="site__title">Ball and Bat Trajectory</h2>
+                <!-- <p class="site__subtitle">Providing data visualization and predictive insights for coaches and teams.</p> -->
+            </div>
+        </div>
+    </div>
+
+    <div class="data-section">
+        <p><strong>Pitch Event ID:</strong> <span id="pitch-event-id"></span></p>
+        <p><strong>Result:</strong> <span id="pitch-result"></span></p>
+        <p><strong>Action:</strong> <span id="pitch-action"></span></p>
+        <p><strong>Hit Event ID:</strong> <span id="hit-event-id"></span></p>
+        <p><strong>Hitter ID:</strong> <span id="hitter-id"></span></p>
+    </div>
+
+    <div class="filter-container">
+        <label><input type="checkbox" id="filterBall" checked> Ball</label>
+        <label><input type="checkbox" id="filterHead" checked> Head</label>
+        <label><input type="checkbox" id="filterHandle" checked> Handle</label>
+    </div>
+
+    <div id="chart"></div>
+
+    <div class="data-section">
+        <p>
+            We provide three animated visualizations of the ball -- bat head, and bat handle movements over time. Each video represents the same event from a different viewing perspective, allowing you to observe the trajectories from multiple angles.
+        </p>
+        <p>
+            These animations provide a dynamic view of:
+            <ul>
+                <li>The ball's path from pitch to contact (green line)</li>
+                <li>The bat head's movement during the swing (blue line)</li>
+                <li>The bat handle's trajectory (red line)</li>
+            </ul>
+        </p>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn btn--white" id="generateVideo">Generate and Display Videos</button>
+    </div>
+
+    <!-- Video Section -->
+    <div id="video-section" style="display:none; margin-bottom: 300px;">
+        <h2>Generated Videos</h2>
+        <div id="videos" class="video-container"></div>
+    </div>
+
+    <script>
+        let ballTrace, headTrace, handleTrace;
+        let ballVisible = true, headVisible = true, handleVisible = true;
+        let headDataExists = false, handleDataExists = false;
+
+        async function fetchData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data;
+        }
+
+        async function createVisualization(dataId) {
+            const data = await fetchData(`/extract_info/${dataId}`);
+
+            // Safely extract and display event information
+            console.log(data);
+            const pitchEventId = data[0]?.pitch_id || 'N/A';
+            const pitchResult = data[0]?.result || 'N/A';
+            const pitchAction = data[0]?.action || 'N/A';
+            const hitEventId = data[0]?.hit_event_id || 'N/A';
+            const hitterId = data[0]?.hitter_id || 'N/A';
+
+            // Display the extracted information on the webpage
+            document.getElementById('pitch-event-id').textContent = pitchEventId;
+            document.getElementById('pitch-result').textContent = pitchResult;
+            document.getElementById('pitch-action').textContent = pitchAction;
+            document.getElementById('hit-event-id').textContent = hitEventId;
+            document.getElementById('hitter-id').textContent = hitterId;
+
+            // Log the extracted information
+            console.log(`Pitch Event ID: ${pitchEventId}`);
+            console.log(`Pitch Result: ${pitchResult}`);
+            console.log(`Hit Event ID: ${hitEventId}`);
+            console.log(`Hitter ID: ${hitterId}`);
+
+            const ballData = await fetchData(`/data/${dataId}`);
+
+            const ballPositions = ballData.flatMap(d => d.samples_ball?.map(sample => sample.pos) || []);
+            const ballTimes = ballData.flatMap(d => d.samples_ball?.map(sample => sample.time) || []);
+            
+            // Separate ball positions into x, y, and z arrays
+            const ballX = ballPositions.map(p => p[0]);
+            const ballY = ballPositions.map(p => p[1]);
+            const ballZ = ballPositions.map(p => p[2]);
+
+            ballTrace = {
+                x: ballX,
+                y: ballY,
+                z: ballZ,
+                text: ballTimes.map(t => `time: ${t}`),  // Add time data to the text field
+                mode: 'markers',
+                marker: {
+                    size: 3,
+                    color: '#ff7f0e'
+                },
+                type: 'scatter3d',
+                name: 'Ball',
+                hovertemplate:
+                    'x: %{x}<br>' +
+                    'y: %{y}<br>' +
+                    'z: %{z}<br>' +
+                    '%{text}<br>' +  // Include the time in the tooltip
+                    '<extra></extra>',
+                visible: ballVisible
+            };
+
+            const traces = [ballTrace];
+
+            let headX = [], headY = [], headZ = [], headText = [];
+            let handleX = [], handleY = [], handleZ = [], handleText = [];
+
+            ballData.forEach(d => {
+                d.samples_bat?.forEach(sample => {
+                    const event = sample.event ? sample.event : "None";
+                    const time = sample.time ? sample.time : "N/A";
+                    
+                    if (sample.head && sample.head.pos) {
+                        headDataExists = true;
+                        headX.push(sample.head.pos[0]);
+                        headY.push(sample.head.pos[1]);
+                        headZ.push(sample.head.pos[2]);
+                        headText.push(`event: ${event}<br>time: ${time}<br>position: head`);
+                    }
+                    if (sample.handle && sample.handle.pos) {
+                        handleDataExists = true;
+                        handleX.push(sample.handle.pos[0]);
+                        handleY.push(sample.handle.pos[1]);
+                        handleZ.push(sample.handle.pos[2]);
+                        handleText.push(`event: ${event}<br>time: ${time}<br>position: handle`);
+                    }
+                });
+            });
+
+            if (headDataExists) {
+                headTrace = {
+                    x: headX,
+                    y: headY,
+                    z: headZ,
+                    text: headText,
+                    mode: 'markers',
+                    marker: {
+                        size: 5,
+                        color: '#1f77b4'
+                    },
+                    type: 'scatter3d',
+                    name: 'Head',
+                    hovertemplate:
+                        'x: %{x}<br>' +
+                        'y: %{y}<br>' +
+                        'z: %{z}<br>' +
+                        '%{text}<br>' +  // Include the event type and time in the tooltip
+                        '<extra></extra>',
+                    visible: headVisible
+                };
+                traces.push(headTrace);
+            }
+            if (handleDataExists) {
+                handleTrace = {
+                    x: handleX,
+                    y: handleY,
+                    z: handleZ,
+                    text: handleText,
+                    mode: 'markers',
+                    marker: {
+                        size: 5,
+                        color: '#d62728'
+                    },
+                    type: 'scatter3d',
+                    name: 'Handle',
+                    hovertemplate:
+                        'x: %{x}<br>' +
+                        'y: %{y}<br>' +
+                        'z: %{z}<br>' +
+                        '%{text}<br>' +  // Include the event type and time in the tooltip
+                        '<extra></extra>',
+                    visible: handleVisible
+                };
+                traces.push(handleTrace);
+            }
+
+            const layout = {
+                margin: { t: 0 },
+                scene: {
+                    xaxis: { title: 'X' },
+                    yaxis: { title: 'Y' },
+                    zaxis: { title: 'Z' }
+                }
+            };
+
+            Plotly.newPlot('chart', traces, layout).then(() => {
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('preloader').style.display = 'none';
+                document.body.style.overflow = 'visible';
+            });
+
+            // Save indices for visibility toggling
+            document.getElementById('filterBall').dataset.traceIndex = 0;
+            document.getElementById('filterHead').dataset.traceIndex = headDataExists ? traces.indexOf(headTrace) : -1;
+            document.getElementById('filterHandle').dataset.traceIndex = handleDataExists ? traces.indexOf(handleTrace) : -1;
+        }
+
+        function updateVisibility() {
+            const ballTraceIndex = document.getElementById('filterBall').dataset.traceIndex;
+            const headTraceIndex = document.getElementById('filterHead').dataset.traceIndex;
+            const handleTraceIndex = document.getElementById('filterHandle').dataset.traceIndex;
+
+            if (ballTraceIndex !== '-1') {
+                Plotly.restyle('chart', { visible: ballVisible ? true : 'legendonly' }, [ballTraceIndex]);
+            }
+            if (headTraceIndex !== '-1') {
+                Plotly.restyle('chart', { visible: headVisible ? true : 'legendonly' }, [headTraceIndex]);
+            } else if (headVisible) {
+                alert('No head data available! This ball does not have a head.');
+                document.getElementById('filterHead').checked = false;
+                headVisible = false;
+            }
+            if (handleTraceIndex !== '-1') {
+                Plotly.restyle('chart', { visible: handleVisible ? true : 'legendonly' }, [handleTraceIndex]);
+            } else if (handleVisible) {
+                alert('No handle data available! This ball does not have a handle.');
+                document.getElementById('filterHandle').checked = false;
+                handleVisible = false;
+            }
+        }
+
+        document.getElementById('filterBall').addEventListener('change', (event) => {
+            ballVisible = event.target.checked;
+            updateVisibility();
+        });
+
+        document.getElementById('filterHead').addEventListener('change', (event) => {
+            headVisible = event.target.checked;
+            updateVisibility();
+        });
+
+        document.getElementById('filterHandle').addEventListener('change', (event) => {
+            handleVisible = event.target.checked;
+            updateVisibility();
+        });
+
+        async function generateAndDisplayVideos(dataId) {
+            const response = await fetch(`/video/${dataId}`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+
+            if (response.ok) {
+                const videos = result.videos;
+                const videoSection = document.getElementById('video-section');
+                const videoContainer = document.getElementById('videos');
+                
+                // Clear previous videos if any
+                videoContainer.innerHTML = '';
+
+                videos.forEach((videoUrl, index) => {
+                    const videoElement = document.createElement('video');
+                    videoElement.controls = true;
+                    videoElement.src = videoUrl;
+                    videoElement.type = 'video/mp4';
+                    videoElement.textContent = 'Your browser does not support the video tag.';
+                    videoElement.addEventListener('canplay', () => {
+                        videoElement.play();
+                    });
+                    videoContainer.appendChild(videoElement);
+                });
+
+                // Display the video section
+                videoSection.style.display = 'block';
+
+                // Set a timeout to delete videos after 5 minutes (300000 milliseconds)
+                setTimeout(async () => {
+                    await fetch(`/delete_videos/${dataId}`, {
+                        method: 'DELETE'
+                    });
+                }, 300000); // 300000 milliseconds = 5 minutes
+            } else {
+                alert(result.error);
+            }
+        }
+
+        document.getElementById('generateVideo').addEventListener('click', () => {
+            const dataId = document.querySelector('meta[name="data-id"]').content;
+            generateAndDisplayVideos(dataId);
+        });
+
+        const dataId = document.querySelector('meta[name="data-id"]').content;
+        createVisualization(dataId);
+    </script>
+</body>
+</html>
