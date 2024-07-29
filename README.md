@@ -1,6 +1,6 @@
 # HerstatHeroes MVP
 
-This project is the backend server for the HerstatHeroes application, developed during a hackathon. The application provides detailed analytics and visualizations for baseball players' performance. The backend is built using Flask and provides various endpoints to fetch and visualize data related to baseball events.
+This application provides detailed analytics and visualizations for baseball players' performance. The backend is built using Flask and provides various endpoints to fetch and visualize data related to baseball events.
 
 ## Project Structure
 
