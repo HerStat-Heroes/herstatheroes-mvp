@@ -61,10 +61,7 @@ herstatheroes-backend/
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables:**
-   Create a `.env` file in the root directory and add any necessary environment variables.
-
-5. **Run the Flask application:**
+4. **Run the Flask application:**
    ```sh
    flask run
    ```
