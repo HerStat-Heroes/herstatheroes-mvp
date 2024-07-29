@@ -1,6 +1,6 @@
 # HerstatHeroes MVP
 
-This application provides detailed analytics and visualizations for baseball players' performance. The backend is built using Flask and provides various endpoints to fetch and visualize data related to baseball events.
+This application provides detailed analytics and visualizations for baseball players' performance. The app is built using Flask and provides various endpoints to fetch and visualize data related to baseball events, deployed at https://herstatheroes-backend.onrender.com.
 
 ## Project Structure
 
