@@ -8,4 +8,4 @@ matplotlib==3.9.1
 statsmodels==0.14.2
 scikit-learn==1.5.1
 seaborn==0.13.2
-openai==1.37.1
+openai==0.28.0

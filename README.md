@@ -1,6 +1,6 @@
 # HerstatHeroes MVP
 
-This application provides detailed analytics and visualizations for baseball players' performance. The app is built using Flask and provides various endpoints to fetch and visualize data related to baseball events, deployed at https://herstatheroes-backend.onrender.com.
+This application provides detailed analytics and visualizations for baseball players' performance. The app is built using Flask and provides various endpoints to fetch and visualize data related to baseball events, deployed at GCP: https://herstatheroes-backend-67082157402.us-central1.run.app/.
 
 ## Project Structure
 
@@ -41,6 +41,7 @@ herstatheroes-backend/
 - numpy
 - pandas
 - json
+- python-dotenv (for environment variable management)
 
 ## Setup
 
@@ -61,7 +62,17 @@ herstatheroes-backend/
    pip install -r requirements.txt
    ```
 
-4. **Run the Flask application:**
+4. **Set up environment variables:**
+   - Create a `.env` file in the root directory:
+   ```sh
+   touch .env
+   ```
+   - Add your OpenAI API key:
+   ```sh
+   echo "OPENAI_API_KEY=your_openai_api_key" > .env
+   ```
+
+5. **Run the Flask application:**
    ```sh
    flask run
    ```
@@ -142,6 +153,11 @@ herstatheroes-backend/
 - **Method:** GET
 - **Description:** Fetch data for a specific hitter.
 
+### `/suggestion`
+- **Method:** POST
+- **Description:** Get AI-powered suggestions based on user input.
+
 ## Data Analysis and Modeling
 
 The `data_model.py` script contains functions for analyzing the dataset and predicting performance metrics. The `womenintech_squared_up_rate_predict.ipynb` notebook provides detailed exploratory data analysis (EDA) and modeling.
+

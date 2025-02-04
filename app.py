@@ -1,3 +1,5 @@
+import openai
+print(openai.__version__)
 from flask import Flask, jsonify, send_from_directory, request, render_template
 import json
 import os
@@ -5,13 +7,38 @@ import glob
 import numpy as np
 from video import create_animation_for_data_id
 from data_model import BaseballAnalysis  # Adjust the import based on your actual module location
+import schedule
+import time
+import shutil
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
 LOCAL_DATA_DIR = 'dataset/'
 
+load_dotenv()
+
 # Initialize your BaseballAnalysis with the path to your dataset
 analysis = BaseballAnalysis(os.path.join(LOCAL_DATA_DIR, '*.jsonl'))
+
+# OpenAI API setup
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
+def call_openai(prompt, model="gpt-3.5-turbo"):
+    try:
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": "You are a personal AI coach for baseball players."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=600
+        )
+        return response.choices[0].message['content'].strip()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 def get_json_data_by_id(data_id):
     file_path = os.path.join(LOCAL_DATA_DIR, f'{data_id}.jsonl')
@@ -292,7 +319,7 @@ def video(data_id):
     error = create_animation_for_data_id(data_id, LOCAL_DATA_DIR)
     if error:
         return jsonify({'error': error}), 404
-    video_urls = [f'/video/{data_id}/view{i}' for i in range(3)]
+    video_urls = [f'/video/{data_id}/{i}' for i in range(1, 4)]
     return jsonify({'message': 'Video created successfully', 'videos': video_urls}), 201
 
 @app.route('/video/<data_id>/<view_id>', methods=['GET'])
@@ -359,6 +386,43 @@ def get_data_by_hitter(hitter_id):
 
     return jsonify(matching_data_ids)
 
+# New endpoint to call OpenAI API
+@app.route('/suggestion', methods=['POST'])
+def get_suggestion():
+    data = request.get_json()
+    prompt = data.get('prompt', '')
+    if not prompt:
+        return jsonify({'error': 'Prompt is required'}), 400
+
+    suggestion = call_openai(prompt)
+    if suggestion is None:
+        return jsonify({'error': 'Failed to get suggestion from OpenAI API'}), 500
+
+    return jsonify({'suggestion': suggestion})
+
+def delete_videos():
+    folder = 'videos'
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')
+
+schedule.every().hour.do(delete_videos)
+
 if __name__ == '__main__':
+    def run_scheduler():
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    from threading import Thread
+    scheduler_thread = Thread(target=run_scheduler)
+    scheduler_thread.start()
+
     port = int(os.environ.get('PORT', 5001))
     app.run(debug=True, host='0.0.0.0', port=port)

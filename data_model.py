@@ -290,18 +290,18 @@ class BaseballAnalysis:
         return X, Other_info, category_mapping[y_pred[0]]
 
 
-analysis = BaseballAnalysis('dataset/*.jsonl')
-X, Other_info, category_description = analysis.out_prediction('dataset/12345641_36899.jsonl')
+# analysis = BaseballAnalysis('dataset/*.jsonl')
+# X, Other_info, category_description = analysis.out_prediction('dataset/12345641_36899.jsonl')
 
-print("Feature DataFrame (X) details:")
-for column in X.columns:
-    values = X[column].iloc[0]
-    print(f"{column}: {values}")
+# print("Feature DataFrame (X) details:")
+# for column in X.columns:
+#     values = X[column].iloc[0]
+#     print(f"{column}: {values}")
 
-print("\nAdditional Information (Other_info) details:")
-for column in Other_info.columns:
-    values = Other_info[column].iloc[0]
-    print(f"{column}: {values}")
+# print("\nAdditional Information (Other_info) details:")
+# for column in Other_info.columns:
+#     values = Other_info[column].iloc[0]
+#     print(f"{column}: {values}")
 
-print("\nPredicted Category Description:")
-print(category_description)
+# print("\nPredicted Category Description:")
+# print(category_description)

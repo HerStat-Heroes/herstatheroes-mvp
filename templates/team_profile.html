@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Profile - HerstatHeroes</title>
     <link rel="stylesheet" href="/static/css/profile.css">
+    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/m5ZdwdL/baseball.png"/>
+
     <style>
         .stats-table {
             width: 100%;
@@ -21,6 +23,12 @@
         }
         .event {
             margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .suggestion {
+            margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -74,6 +82,24 @@
         window.onload = () => {
             populateTeamMembers();
         };
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const prompt = "Within 600 tokens: I'm the coach of the whole team, which aspects (trajectory length, pitch speed, pitch spin, hit speed, contact point on the bat, and level of stress) should I focus on to improve my team's squared-up rate?";
+            const response = await fetch('/suggestion', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: prompt })
+            });
+            const result = await response.json();
+            const suggestionDiv = document.getElementById('ai-suggestion');
+            if (result.suggestion) {
+                suggestionDiv.textContent = result.suggestion;
+            } else {
+                suggestionDiv.textContent = 'Failed to get suggestion from the AI.';
+            }
+        });
     </script>
 </head>
 <body>
@@ -81,13 +107,13 @@
         <div class="container header__container">
             <div class="header__logo">
                 <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
-                <h1 class="header__title" href="/">HerstatHeroes</h1>
+                <h1 class="header__title" href="/">HerStatHeroes</h1>
             </div>
             <div class="header__menu">
                 <nav id="navbar" class="header__nav collapse">
                     <ul class="header__elenco">
-                        <li class="header__el"><a href="#" class="header__link">Home</a></li>
-                        <li class="header__el"><a href="#" class="header__link">Contact us</a></li>
+                        <li class="header__el"><a href="/" class="header__link">Home</a></li>
+                        <li class="header__el"><a href="mailto:herstatheroes@gmail.com" class="header__link">Contact us</a></li>
                     </ul>
                 </nav>
             </div>
@@ -104,6 +130,7 @@
 
                 <section class="performance-stats">
                     <h2>Performance Statistics</h2>
+                    <p>Here is the average data of the team:</p>
                     <table class="stats-table">
                         <thead>
                             <tr>
@@ -155,27 +182,21 @@
                         <br>
                         This categorization comes from the MLB's official definition: "Any swing that's at least 80% squared up is considered to be, well, squared up." Therefore, the 0.8 threshold is an officially recognized benchmark for excellent contact quality.
                     </p>
+
+                    <h2>AI Suggestion</h2>
+                    <div id="ai-suggestion" class="suggestion"></div>
                 </section>
-<!-- 
-                <section class="hit-events">
-                    <h2>Related Hit Events</h2>
-                    <ul>
-                        {% for event in team_data %}
-                            <li>Event {{ loop.index }}: 
-                                <a href="{{ url_for('visualization', data_id=event.jsonl_filename[:-6]) }}">
-                                    {{ event.hit_event_id }} ({{ event.jsonl_filename }})
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </section> -->
 
                 <section class="detailed-events">
                     <h2>Detailed Events</h2>
                     {% for event in team_data %}
                         <div class="event">
                             <h3>Event {{ loop.index }}</h3>
-                            <p><strong>Hit Event ID:</strong> {{ event.hit_event_id }}</p>
+                            <p><strong>Hit Event ID:</strong> 
+                                <a href="{{ url_for('visualization', data_id=event.jsonl_filename[:-6]) }}">
+                                    {{ event.hit_event_id }}
+                                </a>
+                            </p>
                             <p><strong>Category:</strong> {{ event.squared_up_rate_category }}</p>
                             <p><strong>Trajectory Length:</strong> {{ event.total_length|round(2) }}</p>
                             <p><strong>Swing Speed:</strong> {{ event.swing_speed|round(2) }}</p>
@@ -190,7 +211,6 @@
                     <div id="teamMembersList">
                         <!-- Team members will be populated here by JavaScript -->
                     </div>
-                    
                 </section>
             {% else %}
                 <p>No data found for this team.</p>

@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ball Positions Visualization</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="/static/css/visualization.css">
-    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/m5ZdwdL/baseball.png"/>
-    <meta name="data-id" content="12345645_17713"> <!-- Example data-id for testing -->
+    <link rel="shortcut icon" type="image/x-icon" href="https://i.ibb.co/m5ZdwdL/baseball.png" />
 </head>
+
 <body>
     <!-- Preloader -->
     <div id="preloader">
@@ -18,13 +19,13 @@
         <div class="container header__container">
             <div class="header__logo">
                 <img class="header__img" src="https://i.ibb.co/m5ZdwdL/baseball.png" alt="Baseball Logo">
-                <h1 class="header__title" href="/">HerstatHeroes</h1>
+                <h1 class="header__title" href="/">HerStatHeroes</h1>
             </div>
             <div class="header__menu">
                 <nav id="navbar" class="header__nav collapse">
                     <ul class="header__elenco">
-                        <li class="header__el"><a href="#" class="header__link">Home</a></li>
-                        <li class="header__el"><a href="#" class="header__link">Contact us</a></li>
+                        <li class="header__el"><a href="/" class="header__link">Home</a></li>
+                        <li class="header__el"><a href="mailto:herstatheroes@gmail.com" class="header__link">Contact us</a></li>
                     </ul>
                 </nav>
             </div>
@@ -61,11 +62,11 @@
         </p>
         <p>
             These animations provide a dynamic view of:
-            <ul>
-                <li>The ball's path from pitch to contact (green line)</li>
-                <li>The bat head's movement during the swing (blue line)</li>
-                <li>The bat handle's trajectory (red line)</li>
-            </ul>
+        <ul>
+            <li>The ball's path from pitch to contact (green line)</li>
+            <li>The bat head's movement during the swing (blue line)</li>
+            <li>The bat handle's trajectory (red line)</li>
+        </ul>
         </p>
     </div>
 
@@ -118,7 +119,7 @@
 
             const ballPositions = ballData.flatMap(d => d.samples_ball?.map(sample => sample.pos) || []);
             const ballTimes = ballData.flatMap(d => d.samples_ball?.map(sample => sample.time) || []);
-            
+
             // Separate ball positions into x, y, and z arrays
             const ballX = ballPositions.map(p => p[0]);
             const ballY = ballPositions.map(p => p[1]);
@@ -154,7 +155,7 @@
                 d.samples_bat?.forEach(sample => {
                     const event = sample.event ? sample.event : "None";
                     const time = sample.time ? sample.time : "N/A";
-                    
+
                     if (sample.head && sample.head.pos) {
                         headDataExists = true;
                         headX.push(sample.head.pos[0]);
@@ -280,6 +281,9 @@
         });
 
         async function generateAndDisplayVideos(dataId) {
+            // Change the button text to 'Generating...'
+            document.getElementById('generateVideo').textContent = 'Generating...';
+
             const response = await fetch(`/video/${dataId}`, {
                 method: 'POST'
             });
@@ -289,7 +293,7 @@
                 const videos = result.videos;
                 const videoSection = document.getElementById('video-section');
                 const videoContainer = document.getElementById('videos');
-                
+
                 // Clear previous videos if any
                 videoContainer.innerHTML = '';
 
@@ -307,25 +311,22 @@
 
                 // Display the video section
                 videoSection.style.display = 'block';
-
-                // Set a timeout to delete videos after 5 minutes (300000 milliseconds)
-                setTimeout(async () => {
-                    await fetch(`/delete_videos/${dataId}`, {
-                        method: 'DELETE'
-                    });
-                }, 300000); // 300000 milliseconds = 5 minutes
             } else {
                 alert(result.error);
             }
+
+            // Reset the button text after the videos are generated
+            document.getElementById('generateVideo').textContent = 'Generate and Display Videos';
         }
 
         document.getElementById('generateVideo').addEventListener('click', () => {
-            const dataId = document.querySelector('meta[name="data-id"]').content;
+            const dataId = "{{ data_id }}";
             generateAndDisplayVideos(dataId);
         });
 
-        const dataId = document.querySelector('meta[name="data-id"]').content;
+        const dataId = "{{ data_id }}";
         createVisualization(dataId);
     </script>
 </body>
+
 </html>
